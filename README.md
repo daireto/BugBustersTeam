@@ -1,5 +1,5 @@
-# BugBustersTeam
-Primera evaluación de Trabajo en Equipo sobre Integración Continua 
+# Última entrega - Despliegue de Software
+## CI/CD
 
 - Juan Sebastian Cardona Serna
 - Juan Manuel Valencia Giraldo

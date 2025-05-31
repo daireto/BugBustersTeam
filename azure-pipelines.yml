@@ -11,6 +11,7 @@ variables:
 
 steps:
 - task: UseDotNet@2
+  displayName: 'Instalar .NET Core SDK'
   inputs:
     packageType: 'sdk'
     version: '8.x'
@@ -37,14 +38,7 @@ steps:
     arguments: '--configuration $(buildConfiguration) --output $(outputPath)'
 
 - task: PublishBuildArtifacts@1
+  displayName: 'Publicar artefactos'
   inputs:
     pathToPublish: '$(outputPath)'
     artifactName: 'drop'
-
-- task: AzureWebApp@1
-  displayName: 'Deploy to Azure Web App'
-  inputs:
-    appType: webApp
-    azureSubscription: 'AzureConnection'
-    appName: 'PokemonFinder'
-    package: '$(outputPath)'

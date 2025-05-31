@@ -1,8 +1,3 @@
-# ASP.NET Core
-# Build and test ASP.NET Core projects targeting .NET Core.
-# Add steps that run tests, create a NuGet package, deploy, and more:
-# https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
-
 trigger:
 - main
 
@@ -11,9 +6,45 @@ pool:
 
 variables:
   buildConfiguration: 'Release'
+  project: '**/*.csproj'
+  outputPath: '$(Build.ArtifactStagingDirectory)/publish'
 
 steps:
-- script: |
-    cd Ecommerce.API
-    dotnet build --configuration $(buildConfiguration)
-  displayName: 'dotnet build $(buildConfiguration)'
+- task: UseDotNet@2
+  inputs:
+    packageType: 'sdk'
+    version: '8.x'
+    installationPath: $(Agent.ToolsDirectory)/dotnet
+
+- task: DotNetCoreCLI@2
+  displayName: 'Restaurar paquetes'
+  inputs:
+    command: 'restore'
+    projects: '$(project)'
+
+- task: DotNetCoreCLI@2
+  displayName: 'Compilar proyecto'
+  inputs:
+    command: 'build'
+    projects: '$(project)'
+    arguments: '--configuration $(buildConfiguration)'
+
+- task: DotNetCoreCLI@2
+  displayName: 'Publicar proyecto'
+  inputs:
+    command: 'publish'
+    publishWebProjects: true
+    arguments: '--configuration $(buildConfiguration) --output $(outputPath)'
+
+- task: PublishBuildArtifacts@1
+  inputs:
+    pathToPublish: '$(outputPath)'
+    artifactName: 'drop'
+
+- task: AzureWebApp@1
+  displayName: 'Deploy to Azure Web App'
+  inputs:
+    appType: webApp
+    azureSubscription: 'AzureConnection'
+    appName: 'PokemonFinder'
+    package: '$(outputPath)'
